@@ -18,7 +18,6 @@ class ESPWiFi: public ESPUtils {
 
         static void handleMain();
         static void handleSave();
-        static void handleUpdateSketch();
         static char *genUniqueHostname(String prefix, String suffix);
 
         void wifiConnect();

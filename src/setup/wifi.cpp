@@ -107,7 +107,6 @@ void ESPWiFi::wifiConnect(){
 
         server.on("/", HTTP_GET, ESPWiFi::handleMain);
         server.on("/wifi/save", HTTP_POST, ESPWiFi::handleSave);
-        server.on("/update", HTTP_GET, ESPWiFi::handleUpdateSketch);
         server.begin();
 
         isWebServerRunning = true;
@@ -175,13 +174,6 @@ void ESPWiFi::handleMain(){
         "</html>";
 
     server.send(200, "text/html", data);
-}
-
-void ESPWiFi::handleUpdateSketch(){
-    ESPUtils esputils;
-
-    server.send(500, "application/json", "{\"status\": \"UPDATING\"}");
-    esputils.updateSketch(otaUpdateUrl + "?chip=" + espChipName + "&mac=" + WiFi.macAddress() + "&version=" + -1);
 }
 
 void ESPWiFi::stateCheck(){
