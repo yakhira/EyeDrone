@@ -20,6 +20,7 @@ class ESPUtils {
         void saveFile(String filename, String data);
         void readFile(String filename, JSONVar &data);
         void readFile(String filename, String &data);
+        void removeFile(String filename);
 
         bool getHTTPJsonData(String url, JSONVar &result);
         bool sendHTTPJsonData(String url, JSONVar data);

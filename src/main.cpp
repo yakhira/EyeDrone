@@ -4,7 +4,7 @@
 // -------- DEFAULT SKETCH PARAMETERS --------
 const int SKETCH_VERSION = 1;
 
-ESPWiFi espwifi("eye-drone");
+ESPWiFi espwifi("ESP32-D0WDQ5");
 
 #define CAMERA_MODEL_AI_THINKER
 
@@ -72,13 +72,13 @@ void main_code()
 	sensor_t *s = esp_camera_sensor_get();
 	s->set_framesize(s, FRAMESIZE_QVGA);
 
-	startCameraServer();
+ 	startCameraServer();
 	WiFiAddr = WiFi.localIP().toString();
 }
 
 void checkSleepState(unsigned int sleep){
 	JSONVar sleepState;
-	espwifi.getHTTPJsonData(espwifi.wifiConfig["sleep_state_url"] + "?mac=" + WiFi.macAddress(), sleepState);
+	espwifi.getHTTPJsonData(espwifi.sleepStateUrl + "?mac=" + WiFi.macAddress(), sleepState);
 
 	if ((bool)sleepState["state"]){
 		digitalWrite(gpLed, LOW);
@@ -102,7 +102,7 @@ void checkSleepState(unsigned int sleep){
 
 void setup()
 {
-	Serial.begin(9600);
+	Serial.begin(115200);
 
 	gpio_hold_dis((gpio_num_t)gpLb);
 	gpio_hold_dis((gpio_num_t)gpLf);
@@ -123,6 +123,7 @@ void setup()
 	digitalWrite(gpLed, LOW);
 
 	espwifi.wifiConnect();
+	checkSleepState(0);
 	espwifi.updateSketch(SKETCH_VERSION);
 
 	main_code();

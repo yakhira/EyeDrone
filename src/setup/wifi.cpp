@@ -7,11 +7,15 @@
 #include <WebServer.h>
 WebServer server(8080);
 #else
+#include <ESP8266WebServer.h>
 ESP8266WebServer server(8080);
 #endif
 
 JSONVar ESPWiFi::wifiConfig;
 String ESPWiFi::espChipName;
+String ESPWiFi::otaUpdateUrl;
+String ESPWiFi::sleepStateUrl;
+
 const char *ESPWiFi::defaultWifiPassword = "ESPp@$$w0rd!";
 const String ESPWiFi::configFile = "/wifi_config.json";
 
@@ -36,6 +40,16 @@ char *ESPWiFi::genUniqueHostname(String prefix, String macAddress){
 	return hostname;
 }
 
+void ESPWiFi::loadConfig(){
+    readFile(configFile, wifiConfig);
+
+    otaUpdateUrl = JSON.stringify(wifiConfig["ota_update_url"]);
+    sleepStateUrl = JSON.stringify(wifiConfig["sleep_state_url"]);
+
+    otaUpdateUrl.replace("\"", "");
+    sleepStateUrl.replace("\"", "");
+}
+
 void ESPWiFi::wifiConnect(){
     IPAddress staticIP;
     IPAddress dns;
@@ -44,7 +58,7 @@ void ESPWiFi::wifiConnect(){
 
     char *hostname = genUniqueHostname("ESP-AP", WiFi.macAddress());
 
-    readFile(configFile, wifiConfig);
+    loadConfig();
 
     if (wifiConfig.hasOwnProperty("wifi_ssid") && wifiConfig.hasOwnProperty("wifi_password"))
     {
@@ -69,6 +83,8 @@ void ESPWiFi::wifiConnect(){
         WiFi.mode(WIFI_STA);
         WiFi.hostname(JSON.stringify(wifiConfig["hostname"]));
         WiFi.setAutoReconnect(true);
+
+        //pinMode(0, INPUT_PULLUP);
 
         while (WiFi.status() != WL_CONNECTED){
             stateCheck();
@@ -112,11 +128,11 @@ void ESPWiFi::handleSave(){
         if (server.arg("restart_device") == "on") {
             server.send(200, "text/html", "Accepted. Restarting device automatically in 3 seconds.");
             delay(3000);
-        #if defined(ESP32) 
-            ESP.restart();
-        #else
-            ESP.reset();
-        #endif
+            #if defined(ESP32) 
+                ESP.restart();
+            #else
+                ESP.reset();
+            #endif
         } else {
             server.send(200, "text/html", "Accepted. Please restart device.");
         }
@@ -163,22 +179,23 @@ void ESPWiFi::handleMain(){
 
 void ESPWiFi::handleUpdateSketch(){
     ESPUtils esputils;
+
     server.send(500, "application/json", "{\"status\": \"UPDATING\"}");
-    esputils.updateSketch(wifiConfig["ota_update_url"] + "?chip=" + espChipName + "&mac=" + WiFi.macAddress() + "&version=" + -1);
+    esputils.updateSketch(otaUpdateUrl + "?chip=" + espChipName + "&mac=" + WiFi.macAddress() + "&version=" + -1);
 }
 
 void ESPWiFi::stateCheck(){
-    if (digitalRead(0) == LOW){
-        mountFS();
-        LittleFS.remove(configFile);
-    }
     if (isWebServerRunning) {
         server.handleClient();
+    } else {
+        if (digitalRead(0) == LOW){
+            //removeFile(configFile);
+        }
     }
 }
 
 t_httpUpdate_return ESPWiFi::updateSketch(int sketch_version){
     return ESPUtils::updateSketch(
-        wifiConfig["ota_update_url"] + "?chip=" + espChipName + "&mac=" + WiFi.macAddress() + "&version=" + sketch_version
+        otaUpdateUrl + "?chip=" + espChipName + "&mac=" + WiFi.macAddress() + "&version=" + sketch_version
     );
 }

@@ -13,6 +13,11 @@ void ESPUtils::mountFS(){
     }
 }
 
+void ESPUtils::removeFile(String filename) {
+	mountFS();
+	LittleFS.remove(filename);
+}
+
 void ESPUtils::saveFile(String filename, JSONVar data) {
 	mountFS();
 
@@ -84,9 +89,9 @@ bool ESPUtils::sendHTTPJsonData(String url, JSONVar data) {
 }
 
 t_httpUpdate_return ESPUtils::updateSketch(String url){
-#if defined(ESP32)
-	ESPhttpUpdate.update(url);
-#else
-  	return ESPhttpUpdate.update(client, url);
-#endif
+	#if defined(ESP32)
+		return ESPhttpUpdate.update(url);
+	#else
+  		return ESPhttpUpdate.update(client, url);
+	#endif
 }

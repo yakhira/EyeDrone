@@ -8,6 +8,7 @@ class ESPWiFi: public ESPUtils {
         static const char *defaultWifiPassword;
         static String espChipName;
         static const String configFile;
+        static JSONVar wifiConfig;
 
         bool isWebServerRunning;
 
@@ -15,7 +16,6 @@ class ESPWiFi: public ESPUtils {
         ESPWiFi(String chipName);
         ~ESPWiFi();
 
-        static JSONVar wifiConfig;
         static void handleMain();
         static void handleSave();
         static void handleUpdateSketch();
@@ -23,6 +23,10 @@ class ESPWiFi: public ESPUtils {
 
         void wifiConnect();
         void stateCheck();
+        void loadConfig();
+
+        static String otaUpdateUrl;
+        static String sleepStateUrl;
 
         t_httpUpdate_return updateSketch(int sketch_version);
 };

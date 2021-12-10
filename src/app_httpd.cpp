@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "esp_http_server.h"
-#include "esp_timer.h"
-#include "esp_camera.h"
-#include "img_converters.h"
-#include "camera_index.h"
-#include "Arduino.h"
+#include <Arduino.h>
+#include <esp_http_server.h>
+#include <esp_timer.h>
+#include <esp_camera.h>
+#include <img_converters.h>
+#include <camera_index.h>
 
 extern int gpLb;
 extern int gpLf;
@@ -308,25 +308,25 @@ static esp_err_t status_handler(httpd_req_t *req){
 static esp_err_t index_handler(httpd_req_t *req){
     httpd_resp_set_type(req, "text/html");
     String page = "";
-     page += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\">\n";
- page += "<script>var xhttp = new XMLHttpRequest(); xhttp.setRequestHeader('Content-Type', 'text/xml'); xhttp.overrideMimeType('text/xml');</script>";
- page += "<script>function getsend(arg) { xhttp.open('GET', arg +'?' + new Date().getTime(), true); xhttp.send() } </script>";
- //page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:280px;'></p><br/><br/>";
- page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:300px;'></p><br/><br/>";
- 
- page += "<p align=center> <button style=width:90px;height:80px onmousedown=getsend('go') onmouseup=getsend('stop') ontouchstart=getsend('go') ontouchend=getsend('stop') ></button> </p>";
- page += "<p align=center>";
- page += "<button style=width:90px;height:80px onmousedown=getsend('left') onmouseup=getsend('stop') ontouchstart=getsend('left') ontouchend=getsend('stop')></button>&nbsp;";
- page += "<button style=width:90px;height:80px onmousedown=getsend('stop') onmouseup=getsend('stop')></button>&nbsp;";
- page += "<button style=width:90px;height:80px onmousedown=getsend('right') onmouseup=getsend('stop') ontouchstart=getsend('right') ontouchend=getsend('stop')></button>";
- page += "</p>";
+    page += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\">\n";
+    page += "<script>var xhttp = new XMLHttpRequest(); xhttp.setRequestHeader('Content-Type', 'text/xml'); xhttp.overrideMimeType('text/xml');</script>";
+    page += "<script>function getsend(arg) { xhttp.open('GET', arg +'?' + new Date().getTime(), true); xhttp.send() } </script>";
+    //page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:280px;'></p><br/><br/>";
+    page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:300px;'></p><br/><br/>";
+    
+    page += "<p align=center> <button style=width:90px;height:80px onmousedown=getsend('go') onmouseup=getsend('stop') ontouchstart=getsend('go') ontouchend=getsend('stop') ></button> </p>";
+    page += "<p align=center>";
+    page += "<button style=width:90px;height:80px onmousedown=getsend('left') onmouseup=getsend('stop') ontouchstart=getsend('left') ontouchend=getsend('stop')></button>&nbsp;";
+    page += "<button style=width:90px;height:80px onmousedown=getsend('stop') onmouseup=getsend('stop')></button>&nbsp;";
+    page += "<button style=width:90px;height:80px onmousedown=getsend('right') onmouseup=getsend('stop') ontouchstart=getsend('right') ontouchend=getsend('stop')></button>";
+    page += "</p>";
 
- page += "<p align=center><button style=width:90px;height:80px onmousedown=getsend('back') onmouseup=getsend('stop') ontouchstart=getsend('back') ontouchend=getsend('stop') ></button></p>";  
+    page += "<p align=center><button style=width:90px;height:80px onmousedown=getsend('back') onmouseup=getsend('stop') ontouchstart=getsend('back') ontouchend=getsend('stop') ></button></p>";  
 
- page += "<p align=center>";
- page += "<button style=width:140px;height:40px onmousedown=getsend('ledon')>LED ON</button>";
- page += "<button style=width:140px;height:40px onmousedown=getsend('ledoff')>LED OFF</button>";
- page += "</p>";
+    page += "<p align=center>";
+    page += "<button style=width:140px;height:40px onmousedown=getsend('ledon')>LED ON</button>";
+    page += "<button style=width:140px;height:40px onmousedown=getsend('ledoff')>LED OFF</button>";
+    page += "</p>";
  
     return httpd_resp_send(req, &page[0], strlen(&page[0]));
 }
