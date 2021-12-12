@@ -14,7 +14,7 @@ ESP8266WebServer server(8080);
 JSONVar ESPWiFi::wifiConfig;
 String ESPWiFi::espChipName;
 String ESPWiFi::otaUpdateUrl;
-String ESPWiFi::sleepStateUrl;
+String ESPWiFi::dataUrl;
 
 const char *ESPWiFi::defaultWifiPassword = "ESPp@$$w0rd!";
 const String ESPWiFi::configFile = "/wifi_config.json";
@@ -44,10 +44,10 @@ void ESPWiFi::loadConfig(){
     readFile(configFile, wifiConfig);
 
     otaUpdateUrl = JSON.stringify(wifiConfig["ota_update_url"]);
-    sleepStateUrl = JSON.stringify(wifiConfig["sleep_state_url"]);
+    dataUrl = JSON.stringify(wifiConfig["data_url"]);
 
     otaUpdateUrl.replace("\"", "");
-    sleepStateUrl.replace("\"", "");
+    dataUrl.replace("\"", "");
 }
 
 void ESPWiFi::wifiConnect(){
@@ -119,7 +119,7 @@ void ESPWiFi::handleSave(){
         ESPWiFi::wifiConfig["wifi_ssid"] = server.arg("wifi_ssid");
         ESPWiFi::wifiConfig["wifi_password"] = server.arg("wifi_password");
         ESPWiFi::wifiConfig["ota_update_url"] = server.arg("ota_update_url");
-        ESPWiFi::wifiConfig["sleep_state_url"] = server.arg("sleep_state_url");
+        ESPWiFi::wifiConfig["data_url"] = server.arg("data_url");
         ESPWiFi::wifiConfig["hostname"] = server.arg("hostname");
 
         esputils.saveFile(ESPWiFi::configFile,  ESPWiFi::wifiConfig);
@@ -160,7 +160,7 @@ void ESPWiFi::handleMain(){
         "                <td>OTA UPDATE URL (optional):</td><td><input type=\"text\" name=\"ota_update_url\"></td>"
         "            </tr>"
         "            <tr>"
-        "                <td>SLEEP STATE URL (optional):</td><td><input type=\"text\" name=\"sleep_state_url\"></td>"
+        "                <td>DATA URL (optional):</td><td><input type=\"text\" name=\"data_url\"></td>"
         "            </tr>"
         "            <tr>"
         "                <td></td><td style=\"text-align: right\"><input type=\"checkbox\" name=\"restart_device\">Restart device</td>"

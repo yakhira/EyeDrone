@@ -25,7 +25,7 @@ class ESPWiFi: public ESPUtils {
         void loadConfig();
 
         static String otaUpdateUrl;
-        static String sleepStateUrl;
+        static String dataUrl;
 
         t_httpUpdate_return updateSketch(int sketch_version);
 };
