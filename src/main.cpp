@@ -123,10 +123,13 @@ void setup()
 	digitalWrite(gpLed, LOW);
 
 	espwifi.wifiConnect();
-	checkSleepState(0);
-	espwifi.updateSketch(SKETCH_VERSION);
 
-	main_code();
+	if (WiFi.getMode() == WIFI_STA) {
+		checkSleepState(0);
+		espwifi.updateSketch(SKETCH_VERSION);
+
+		main_code();
+	}
 }
 
 void loop(){
