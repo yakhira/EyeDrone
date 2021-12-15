@@ -5,12 +5,18 @@
 
 class ESPWiFi: public ESPUtils {
     private:
+        #if defined(ESP32)
         static const char *defaultWifiPassword;
-        static String espChipName;
+        #else
+        static const String defaultWifiPassword;
+        #endif
         static const String configFile;
+        static String espChipName;
         static JSONVar wifiConfig;
 
+        char *hostname;
         bool isWebServerRunning;
+        int resetCount;
 
     public:
         ESPWiFi(String chipName);
@@ -18,7 +24,6 @@ class ESPWiFi: public ESPUtils {
 
         static void handleMain();
         static void handleSave();
-        static char *genUniqueHostname(String prefix, String suffix);
 
         void wifiConnect();
         void stateCheck();
