@@ -185,7 +185,7 @@ void ESPWiFi::stateCheck(){
         server.handleClient();
     } else {
         if (digitalRead(0) == LOW){
-            removeFile(configFile);
+            //removeFile(configFile);
         }
     }
 }
