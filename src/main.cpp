@@ -2,7 +2,7 @@
 #include "esp_camera.h"
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 4;
+const int SKETCH_VERSION = 5;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 
