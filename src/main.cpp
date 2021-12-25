@@ -2,7 +2,7 @@
 #include "esp_camera.h"
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 5;
+const int SKETCH_VERSION = 6;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 
@@ -17,6 +17,8 @@ extern int gpRb = 13; // Right Wheel Back
 extern int gpRf = 12; // Right Wheel Forward
 extern int gpLed = 2; // Light
 extern String WiFiAddr ="";
+
+unsigned long last_time = 0;
 
 void startCameraServer();
 
@@ -44,25 +46,10 @@ void main_code()
 	config.xclk_freq_hz = 20000000;
 	config.pixel_format = PIXFORMAT_JPEG;
 	
-	//init with high specs to pre-allocate larger buffers
-	if (psramFound())
-	{
-		config.frame_size = FRAMESIZE_UXGA;
-		config.jpeg_quality = 10;
-		config.fb_count = 2;
-	}
-	else
-	{
-		config.frame_size = FRAMESIZE_SVGA;
-		config.jpeg_quality = 12;
-		config.fb_count = 1;
-	}
-
-	// play setting
+	config.frame_size = FRAMESIZE_VGA;
 	config.jpeg_quality = 10;
-	config.fb_count = 3;
+	config.fb_count = 1;
 
-	// camera init
 	esp_err_t err = esp_camera_init(&config);
 	if (err != ESP_OK)
 	{
@@ -76,27 +63,32 @@ void main_code()
 	WiFiAddr = WiFi.localIP().toString();
 }
 
-void checkSleepState(unsigned int sleep){
-	JSONVar sleepState;
-	espwifi.getHTTPJsonData(espwifi.dataUrl + "/esp/sleep?mac=" + WiFi.macAddress(), sleepState);
+void checkSleepState(unsigned int interval){
+	if (last_time == 0) {
+		last_time = millis();
+	}
 
-	if ((bool)sleepState["state"]){
-		digitalWrite(gpLed, LOW);
+	if ((last_time + interval*1000) <= millis()) {
+		JSONVar sleepState;
+		espwifi.getHTTPJsonData(espwifi.dataUrl + "/esp/sleep?mac=" + WiFi.macAddress(), sleepState);
 
-		gpio_hold_en((gpio_num_t) gpLb);
-		gpio_hold_en((gpio_num_t) gpLf);
-		gpio_hold_en((gpio_num_t) gpRb);
-		gpio_hold_en((gpio_num_t) gpRf);
-		gpio_hold_en((gpio_num_t) gpLed);
-		gpio_deep_sleep_hold_en();
-		esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
-		esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
-		esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+		if ((bool)sleepState["state"]){
+			digitalWrite(gpLed, LOW);
 
-		esp_sleep_enable_timer_wakeup((int)sleepState["interval"]*1000000);	
-		esp_deep_sleep_start();
-	} else {
-		delay(sleep*1000);
+			gpio_hold_en((gpio_num_t) gpLb);
+			gpio_hold_en((gpio_num_t) gpLf);
+			gpio_hold_en((gpio_num_t) gpRb);
+			gpio_hold_en((gpio_num_t) gpRf);
+			gpio_hold_en((gpio_num_t) gpLed);
+			gpio_deep_sleep_hold_en();
+			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
+			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
+			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+
+			esp_sleep_enable_timer_wakeup((int)sleepState["interval"]*1000000);	
+			esp_deep_sleep_start();
+		}
+		last_time = millis();
 	}
 }
 
