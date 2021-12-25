@@ -2,7 +2,7 @@
 #include "esp_camera.h"
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 6;
+const int SKETCH_VERSION = 8;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 
@@ -70,7 +70,10 @@ void checkSleepState(unsigned int interval){
 
 	if ((last_time + interval*1000) <= millis()) {
 		JSONVar sleepState;
-		espwifi.getHTTPJsonData(espwifi.dataUrl + "/esp/sleep?mac=" + WiFi.macAddress(), sleepState);
+		espwifi.getHTTPJsonData(
+			espwifi.dataUrl + "/esp/sleep?mac=" + WiFi.macAddress(),
+			sleepState
+		);
 
 		if ((bool)sleepState["state"]){
 			digitalWrite(gpLed, LOW);
@@ -80,7 +83,9 @@ void checkSleepState(unsigned int interval){
 			gpio_hold_en((gpio_num_t) gpRb);
 			gpio_hold_en((gpio_num_t) gpRf);
 			gpio_hold_en((gpio_num_t) gpLed);
+
 			gpio_deep_sleep_hold_en();
+
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
