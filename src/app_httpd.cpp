@@ -16,7 +16,6 @@
 #include <esp_timer.h>
 #include <esp_camera.h>
 #include <img_converters.h>
-#include <camera_index.h>
 
 extern int gpLb;
 extern int gpLf;
