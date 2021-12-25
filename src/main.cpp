@@ -19,7 +19,7 @@
 #define PCLK_GPIO_NUM     22
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 8;
+const int SKETCH_VERSION = 7;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 
@@ -33,6 +33,7 @@ extern int gpLed = 2; // Light
 extern String WiFiAddr ="";
 
 unsigned long last_time = 0;
+unsigned long http_errors_count = 0;
 
 void startCameraServer();
 
@@ -79,17 +80,19 @@ void main_code()
 
 void checkSleepState(unsigned int interval){
 	if (last_time == 0) {
-		last_time = millis();
+		last_time = millis()/1000;
 	}
 
-	if ((last_time + interval*1000) <= millis()) {
+	if ((last_time + interval) <= (millis()/1000)) {
 		JSONVar sleepState;
-		espwifi.getHTTPJsonData(
+		if (!espwifi.getHTTPJsonData(
 			espwifi.dataUrl + "/esp/sleep?mac=" + WiFi.macAddress(),
 			sleepState
-		);
+		)) {
+			http_errors_count +=1;
+		}
 
-		if ((bool)sleepState["state"]){
+		if ((bool)sleepState["state"] || http_errors_count > 10){
 			digitalWrite(gpLed, LOW);
 
 			gpio_hold_en((gpio_num_t) gpLb);
@@ -107,7 +110,7 @@ void checkSleepState(unsigned int interval){
 			esp_sleep_enable_timer_wakeup((int)sleepState["interval"]*1000000);	
 			esp_deep_sleep_start();
 		}
-		last_time = millis();
+		last_time = millis()/1000;
 	}
 }
 
