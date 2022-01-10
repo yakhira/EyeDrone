@@ -19,7 +19,7 @@
 #define PCLK_GPIO_NUM     22
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 7;
+const int SKETCH_VERSION = 8;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 
@@ -90,6 +90,8 @@ void checkSleepState(unsigned int interval){
 			sleepState
 		)) {
 			http_errors_count +=1;
+		} else {
+			http_errors_count = 0;
 		}
 
 		if ((bool)sleepState["state"] || http_errors_count > 10){
