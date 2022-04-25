@@ -19,7 +19,7 @@
 #define PCLK_GPIO_NUM     22
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 8;
+const int SKETCH_VERSION = 9;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 
@@ -71,11 +71,9 @@ void main_code()
 		return;
 	}
 
-	sensor_t *s = esp_camera_sensor_get();
-	s->set_framesize(s, FRAMESIZE_QVGA);
-
  	startCameraServer();
 	WiFiAddr = WiFi.localIP().toString();
+	Serial.println("URL: http://" + WiFiAddr);
 }
 
 void checkSleepState(unsigned int interval){
@@ -139,6 +137,8 @@ void setup()
 	digitalWrite(gpLed, LOW);
 
 	espwifi.wifiConnect();
+
+	WiFi.setSleep(WIFI_PS_NONE);
 
 	if (WiFi.getMode() == WIFI_STA) {
 		checkSleepState(0);
