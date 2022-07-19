@@ -1,5 +1,8 @@
 #include "setup/wifi.h"
 #include "esp_camera.h"
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
+#include "driver/adc.h"
 
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
@@ -19,10 +22,10 @@
 #define PCLK_GPIO_NUM     22
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 9;
+const int SKETCH_VERSION = 14;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
-
+ 
 
 // GPIO Setting
 extern int gpLb = 14;  // Left Wheel Back
@@ -93,7 +96,15 @@ void checkSleepState(unsigned int interval){
 		}
 
 		if ((bool)sleepState["state"] || http_errors_count > 10){
+			adc_power_off();
+
+			digitalWrite(gpLb, LOW);
+			digitalWrite(gpLf, LOW);
+			digitalWrite(gpRb, LOW);
+			digitalWrite(gpRf, LOW);
 			digitalWrite(gpLed, LOW);
+
+			gpio_deep_sleep_hold_en();
 
 			gpio_hold_en((gpio_num_t) gpLb);
 			gpio_hold_en((gpio_num_t) gpLf);
@@ -101,10 +112,8 @@ void checkSleepState(unsigned int interval){
 			gpio_hold_en((gpio_num_t) gpRf);
 			gpio_hold_en((gpio_num_t) gpLed);
 
-			gpio_deep_sleep_hold_en();
-
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
-			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
+			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_ON);
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
 
 			esp_sleep_enable_timer_wakeup((int)sleepState["interval"]*1000000);	
@@ -116,8 +125,6 @@ void checkSleepState(unsigned int interval){
 
 void setup()
 {
-	Serial.begin(115200);
-
 	gpio_hold_dis((gpio_num_t)gpLb);
 	gpio_hold_dis((gpio_num_t)gpLf);
 	gpio_hold_dis((gpio_num_t)gpRb);
@@ -130,11 +137,7 @@ void setup()
 	pinMode(gpRf, OUTPUT);
 	pinMode(gpLed, OUTPUT);
 
-	digitalWrite(gpLb, LOW);
-	digitalWrite(gpLf, LOW);
-	digitalWrite(gpRb, LOW);
-	digitalWrite(gpRf, LOW);
-	digitalWrite(gpLed, LOW);
+	Serial.begin(115200);
 
 	espwifi.wifiConnect();
 
