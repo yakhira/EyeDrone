@@ -5,16 +5,17 @@
 #include "setup/wifi.h"
 #include "car/car.h"
 
-#define LEFT_FORWARD  15     
-#define LEFT_BACK     14
-#define RIGHT_BACK    13
-#define RIGHT_FORWARD 12
+#define LEFT_BACK     15
+#define LEFT_FORWARD  14
+#define RIGHT_FORWARD 13
+#define RIGHT_BACK    12
 #define LEFT_PWM      11
-#define LED           2
+#define SPEED         2
+#define LED           4
 
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 14;
+const int SKETCH_VERSION = 15;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 ESPCar espcar(
@@ -22,6 +23,7 @@ ESPCar espcar(
 	LEFT_FORWARD,
 	RIGHT_BACK,
 	RIGHT_FORWARD,
+	SPEED,
 	LED
 );
 

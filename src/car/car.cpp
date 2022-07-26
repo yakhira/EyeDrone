@@ -4,7 +4,8 @@
 #include "car.h"
 
 ESPCar::ESPCar(){
-    carLedPin = 2;
+    carLed = 0;
+    carSpeed = 2;
     carLeftForward = 15;
     carLeftBack = 14;
     carRightBack = 13;
@@ -13,8 +14,10 @@ ESPCar::ESPCar(){
     server = new AsyncWebServer(80);
 }
 
-ESPCar::ESPCar(int leftBack, int leftForward, int rightBack, int rightForward, int ledPin){
-    carLedPin = ledPin;
+ESPCar::ESPCar(int leftBack, int leftForward, int rightBack, int rightForward, int speed, int led){
+    carLed = led;
+
+    carSpeed = speed;
     carLeftBack = leftBack;
     carLeftForward = leftForward;
     carRightBack = rightBack;
@@ -33,7 +36,7 @@ void ESPCar::begin()
     int rightBack = carRightBack;
     int rightForward = carRightForward;
 
-    int ledPin = carLedPin;
+    int led = carLed;
 
     camera_config_t config;
 	config.ledc_channel = LEDC_CHANNEL_0;
@@ -68,6 +71,13 @@ void ESPCar::begin()
 		Serial.println("Can't init camera.");
 	}
 
+    // ledcSetup(7, 5000, 8);
+    // ledcAttachPin(4, 7);
+
+    ledcAttachPin(carSpeed, 8);
+    ledcSetup(8, 2000, 8);      
+    ledcWrite(8, 130);
+
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(LittleFS, "/html/index.html", "text/html");
     });
@@ -75,7 +85,17 @@ void ESPCar::begin()
     server->on(
         "/drive", HTTP_GET, [leftBack, leftForward, rightBack, rightForward](
             AsyncWebServerRequest *request){
-                int nLf = LOW, nLb = LOW, nRf = LOW, nRb = LOW;
+                int nLf = LOW, nLb = LOW, nRf = LOW, nRb = LOW, speed = 255;
+                if (request->hasArg("speed")) {
+                    speed = request->arg("speed").toInt();
+
+                    if (speed > 255) {
+                        speed = 255;
+                    }  else if (speed < 0) {
+                        speed = 0;
+                    }
+                    ledcWrite(8, speed);
+                }
                 if (request->hasArg("left")) {
                     nLf = LOW, nLb = HIGH, nRf = HIGH, nRb = LOW;
                 } else if (request->hasArg("right")) {
@@ -97,11 +117,11 @@ void ESPCar::begin()
             }
         );
     
-    server->on("/led", HTTP_GET, [ledPin](AsyncWebServerRequest *request){
+    server->on("/led", HTTP_GET, [led](AsyncWebServerRequest *request){
         if (request->hasArg("on")){
-            digitalWrite(ledPin, HIGH);
+            digitalWrite(led, HIGH);
         } else {
-            digitalWrite(ledPin, LOW);
+            digitalWrite(led, LOW);
         } 
         request->send(200, "text/html", "OK");
     });

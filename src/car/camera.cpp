@@ -22,6 +22,7 @@ AsyncJpegStreamResponse::AsyncJpegStreamResponse(){
     lastAsyncRequest = 0;
     memset(&_frame, 0, sizeof(camera_frame_t));
 }
+
 AsyncJpegStreamResponse::~AsyncJpegStreamResponse(){
     if (_frame.fb)
     {
@@ -32,6 +33,7 @@ AsyncJpegStreamResponse::~AsyncJpegStreamResponse(){
         esp_camera_fb_return(_frame.fb);
     }
 }
+
 bool AsyncJpegStreamResponse::_sourceValid() const {
     return true;
 }

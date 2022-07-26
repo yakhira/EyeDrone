@@ -26,7 +26,8 @@
 
 class ESPCar {
     private:
-        int carLedPin; 
+        int carLed; 
+        int carSpeed; 
         int carLeftBack;
         int carLeftForward;
         int carRightBack;
@@ -36,7 +37,7 @@ class ESPCar {
         
     public:
         ESPCar();
-        ESPCar(int, int, int, int, int);
+        ESPCar(int, int, int, int, int, int);
         ~ESPCar();
         
         void begin();
