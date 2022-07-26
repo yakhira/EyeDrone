@@ -3,14 +3,9 @@
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
+#include <ESPAsyncWebServer.h>
 #include <LittleFS.h>
-
-#if defined(ESP32)
 #include "ESP32httpUpdate.h"
-#else
-#include <ESP8266HTTPClient.h>
-#include "ESP8266httpUpdate.h"
-#endif
 
 class ESPUtils {
     public:
@@ -18,6 +13,7 @@ class ESPUtils {
         void saveFile(String filename, String data);
         void readFile(String filename, JSONVar &data);
         void readFile(String filename, String &data);
+        void listDir(const char * dirname, uint8_t levels);
         void removeFile(String filename);
 
         bool getHTTPJsonData(String url, JSONVar &result);
@@ -30,6 +26,7 @@ class ESPUtils {
         t_httpUpdate_return updateSketch(String url);
 
         WiFiClient client;
+
         ESPUtils();
         ~ESPUtils();
 };

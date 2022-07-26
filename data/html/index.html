@@ -1,0 +1,53 @@
+<html>
+<head>
+    <script>
+        var xhttp = new XMLHttpRequest(); 
+        xhttp.setRequestHeader('Content-Type', 'text/xml'); 
+        xhttp.overrideMimeType('text/xml');
+
+        function ledControl(arg) { 
+            xhttp.open('GET', 'led?'+ arg, true); 
+            xhttp.send() 
+        }
+
+        function driveControl(arg) { 
+            var speed = document.getElementById("speed").value;
+
+            xhttp.open('GET', 'drive?'+ arg + '&speed=' + speed, true); 
+            xhttp.send() 
+        }
+    </script>
+</head>
+<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <p align="center"><img src="/stream" style="width:300px;"></p><br /><br />
+
+    <p align="center">
+        <button style="width:90px;height:80px" onmousedown="driveControl('go')" onmouseup="driveControl('stop')"
+            ontouchstart="driveControl('go')" ontouchend="driveControl('stop')">
+        </button> 
+    </p>
+    <p align="center">
+        <button style="width:90px;height:80px" onmousedown="driveControl('left')" onmouseup="driveControl('stop')"
+            ontouchstart="driveControl('left')" ontouchend="driveControl('stop')">
+        </button>&nbsp;
+        <button style="width:90px;height:80px" onmousedown="driveControl('stop')" onmouseup="driveControl('stop')">
+        </button>&nbsp;
+        <button style="width:90px;height:80px" onmousedown="driveControl('right')" onmouseup="driveControl('stop')"
+            ontouchstart="driveControl('right')" ontouchend="driveControl('stop')">
+        </button>
+    </p>
+
+    <p align="center">
+        <button style="width:90px;height:80px" onmousedown="driveControl('back')" onmouseup="driveControl('stop')"
+            ontouchstart="driveControl('direction','back')" ontouchend="driveControl('stop')">
+        </button>
+    </p>
+
+    <p align="center">
+        <button style=width:140px;height:40px onmousedown="ledControl('on')">LED ON</button>
+        <button style=width:140px;height:40px onmousedown="ledControl('off')">LED OFF</button>
+    </p>
+</body>
+
+</html>
