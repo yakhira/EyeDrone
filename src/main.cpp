@@ -9,10 +9,8 @@
 #define LEFT_FORWARD  14
 #define RIGHT_FORWARD 13
 #define RIGHT_BACK    12
-#define LEFT_PWM      11
 #define SPEED         2
 #define LED           4
-
 
 // -------- DEFAULT SKETCH PARAMETERS --------
 const int SKETCH_VERSION = 15;
@@ -81,6 +79,8 @@ void checkSleepState(unsigned int interval){
 }
 
 void setup(){
+	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+
 	gpio_hold_dis((gpio_num_t)LEFT_BACK);
 	gpio_hold_dis((gpio_num_t)LEFT_FORWARD);
 	gpio_hold_dis((gpio_num_t)RIGHT_BACK);
@@ -91,7 +91,7 @@ void setup(){
 	pinMode(LEFT_FORWARD, OUTPUT);
 	pinMode(RIGHT_BACK, OUTPUT);
 	pinMode(RIGHT_FORWARD, OUTPUT);
-	pinMode(LED, OUTPUT);
+	pinMode(LED, OUTPUT);  
 
 	Serial.begin(115200);
 

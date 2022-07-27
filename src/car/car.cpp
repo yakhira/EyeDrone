@@ -4,7 +4,7 @@
 #include "car.h"
 
 ESPCar::ESPCar(){
-    carLed = 0;
+    carLed = 4;
     carSpeed = 2;
     carLeftForward = 15;
     carLeftBack = 14;
@@ -64,6 +64,10 @@ void ESPCar::begin()
 	config.jpeg_quality = 10;
 	config.fb_count = 1;
 
+	ledcAttachPin(carSpeed, SPEED_LCD_CHANNEL);
+    ledcSetup(SPEED_LCD_CHANNEL, 2000, 8);
+    ledcWrite(SPEED_LCD_CHANNEL, 130);
+
 	esp_err_t err = esp_camera_init(&config);
 
     if (err != ESP_OK)
@@ -71,12 +75,7 @@ void ESPCar::begin()
 		Serial.println("Can't init camera.");
 	}
 
-    // ledcSetup(7, 5000, 8);
-    // ledcAttachPin(4, 7);
-
-    ledcAttachPin(carSpeed, 8);
-    ledcSetup(8, 2000, 8);      
-    ledcWrite(8, 130);
+    ledcWrite(1, 130);
 
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(LittleFS, "/html/index.html", "text/html");
@@ -94,7 +93,7 @@ void ESPCar::begin()
                     }  else if (speed < 0) {
                         speed = 0;
                     }
-                    ledcWrite(8, speed);
+                    ledcWrite(SPEED_LCD_CHANNEL, speed);
                 }
                 if (request->hasArg("left")) {
                     nLf = LOW, nLb = HIGH, nRf = HIGH, nRb = LOW;
