@@ -1,9 +1,6 @@
 #ifndef CAR_H_
 #define CAR_H_
 
-#include <esp_camera.h>
-#include <img_converters.h>
-
 #include "camera.h"
 #include "utils/utils.h"
 
