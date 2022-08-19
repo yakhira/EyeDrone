@@ -13,6 +13,8 @@ class ESPWiFi: public ESPUtils {
         char *hostname;
         int resetCount;
 
+        AsyncWebServer *server;
+
     public:
         ESPWiFi(String chipName);
         ~ESPWiFi();
