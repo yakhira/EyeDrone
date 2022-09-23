@@ -66,7 +66,7 @@ void ESPCar::begin()
 
 	ledcAttachPin(carSpeed, SPEED_LCD_CHANNEL);
     ledcSetup(SPEED_LCD_CHANNEL, 2000, 8);
-    ledcWrite(SPEED_LCD_CHANNEL, 130);
+    ledcWrite(SPEED_LCD_CHANNEL, 0);
 
 	esp_err_t err = esp_camera_init(&config);
 
@@ -74,8 +74,6 @@ void ESPCar::begin()
 	{
 		Serial.println("Can't init camera.");
 	}
-
-    ledcWrite(1, 130);
 
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(LittleFS, "/html/index.html", "text/html");
