@@ -5,16 +5,18 @@
 
 #include "nrf24/projdefs.h"
 #include "nrf24/nRF24L01.h"
+#include "utils/utils.h"
 #include "tinysnore/tinysnore.h"
 
 
 #define CHANNEL 76 // 0-125
 #define FIVE_BYTES	5
-#define SLEEP_PERIOD_MILLIS		1000
+#define SLEEP_PERIOD_MILLIS 1000
 
 const uint8_t PIPE0_ADDRESS_PGM[] PROGMEM = "1Node"; // pipe 0 address in progmem - don't forget to define macro NR24_READ_PROGMEM in projdefs.h to support it
 
 void receive() {
+	bool sleep = true;
 	uint8_t payload[NRF24_MAX_SIZE];
 
 	nrf24_writeReg(W_REGISTER | EN_AA,      NRF24_PIPE_0);  // en autoack
@@ -23,6 +25,7 @@ void receive() {
 	// set RX mode, enable CRC with 2 bytes, mask all IRQs, power on nRF radio (POWER DOWN ==> STANDBY-1)
 
 	while(1) {
+		nrf24_enableCE();
 		nrf24_writeReg(W_REGISTER | NRF_CONFIG,
 			NRF24_CFG_PWR_UP | NRF24_CFG_RX_MODE | NRF24_CFG_CRC_2B | NRF24_CFG_CRC_EN | NRF24_CFG_IRQ_MASK_ALL);
 
@@ -42,17 +45,23 @@ void receive() {
 			payload[bytes] = 0;
 
 			if (strcmp(payload, "UP") == 0) {
-				high_portb(PB0);
-				high_portb(PB1);
+				digitalWrite_B(PB0, HIGH);
+				digitalWrite_B(PB1, HIGH);
+				sleep = false;
 			}  else if (strcmp(payload, "DOWN") == 0) {
-				low_portb(PB0);
-				low_portb(PB1);
+				digitalWrite_B(PB0, LOW);
+				digitalWrite_B(PB1, LOW);
+				sleep = true;
 			}
 		}
 
 		nrf24_writeReg(W_REGISTER | NRF_CONFIG,
 			NRF24_CFG_PWR_DOWN | NRF24_CFG_RX_MODE | NRF24_CFG_CRC_2B | NRF24_CFG_CRC_EN | NRF24_CFG_IRQ_MASK_ALL);
-		snore(SLEEP_PERIOD_MILLIS);
+		nrf24_disableCE();
+
+		if (sleep) {
+			snore(SLEEP_PERIOD_MILLIS);
+		}
 	}
 }
 
@@ -78,8 +87,6 @@ void setup() {
 
 	nrf24_cmd(FLUSH_TX); // clean TX FIFOs thoroughly
 	nrf24_cmd(FLUSH_RX); // clean RX FIFOs thoroughly
-
-	nrf24_enableCE();
 }
 
 void loop(){

@@ -191,8 +191,6 @@ void nrf24_pulseCE_ms(uint16_t millis);
 
 void nrf24_enableCE();
 void nrf24_disableCE();
-void high_portb(int port);
-void low_portb(int port);
 
 #ifdef __cplusplus
 }

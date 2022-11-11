@@ -324,11 +324,3 @@ void nrf24_enableCE(){
 void nrf24_disableCE(){
 	NRF24L01_CE_CLR();
 }
-
-void high_portb(int port) {
-	asm("sbi %0, %1" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (port));
-}
-
-void low_portb(int port) {
-	asm("cbi %0, %1" :: "I" (_SFR_IO_ADDR(PORTB)), "I" (port));
-}
