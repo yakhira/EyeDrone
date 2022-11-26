@@ -94,9 +94,9 @@ void ESPCar::begin()
                     ledcWrite(SPEED_LCD_CHANNEL, speed);
                 }
                 if (request->hasArg("left")) {
-                    nLf = LOW, nLb = HIGH, nRf = HIGH, nRb = LOW;
-                } else if (request->hasArg("right")) {
                     nLf = HIGH, nLb = LOW, nRf = LOW, nRb = HIGH;
+                } else if (request->hasArg("right")) {
+                    nLf = LOW, nLb = HIGH, nRf = HIGH, nRb = LOW;
                 } else if (request->hasArg("go")) {
                     nLf = LOW, nLb = HIGH, nRf = LOW, nRb = HIGH;
                 } else if (request->hasArg("back")) {
