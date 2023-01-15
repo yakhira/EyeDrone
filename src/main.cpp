@@ -12,7 +12,7 @@
 #define LED           4
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 23;
+const int SKETCH_VERSION = 25;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 ESPCar espcar(
@@ -31,6 +31,8 @@ void main_code()
 }
 
 void setup(){
+	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+
 	pinMode(LEFT_BACK, OUTPUT);
 	pinMode(LEFT_FORWARD, OUTPUT);
 	pinMode(RIGHT_BACK, OUTPUT);
