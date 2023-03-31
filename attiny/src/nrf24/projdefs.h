@@ -46,16 +46,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Enable support for writing data to NRF registers directly from PROGMEM. It saves footprint.
 #define NR24_READ_PROGMEM
+#define NRF24L01_SHARED_CE_CSN
 
 //------------------------------------------------------------------------
 // Pins configuration for nRF24L01 driver
 //------------------------------------------------------------------------
-#define NRF24L01_PORT		PORTA
-#define NRF24L01_DDR		DDRA
-#define NRF24L01_INPORT		PINA
+#define NRF24L01_PORT		PORTB
+#define NRF24L01_DDR		DDRB
+#define NRF24L01_INPORT		PINB
 
-#define NRF24L01_CE			PA2
-#define NRF24L01_CSN		PA3
-#define NRF24L01_SCK		PA4
-#define NRF24L01_MISO		PA5
-#define NRF24L01_MOSI		PA6
+//#define NRF24L01_CE		    PB4 // Mandatory
+#define NRF24L01_CSN		PB3 // Mandatory
+#define NRF24L01_SCK		PB2 // Mandatory
+#define NRF24L01_MISO		PB1 // Mandatory
+#define NRF24L01_MOSI		PB0 // Mandatory

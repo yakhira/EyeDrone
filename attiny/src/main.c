@@ -6,7 +6,6 @@
 #include "nrf24/projdefs.h"
 #include "nrf24/nRF24L01.h"
 #include "utils/utils.h"
-#include "tinysnore/tinysnore.h"
 
 
 #define CHANNEL 76 // 0-125
@@ -25,7 +24,6 @@ void receive() {
 	// set RX mode, enable CRC with 2 bytes, mask all IRQs, power on nRF radio (POWER DOWN ==> STANDBY-1)
 
 	while(1) {
-		nrf24_enableCE();
 		nrf24_writeReg(W_REGISTER | NRF_CONFIG,
 			NRF24_CFG_PWR_UP | NRF24_CFG_RX_MODE | NRF24_CFG_CRC_2B | NRF24_CFG_CRC_EN | NRF24_CFG_IRQ_MASK_ALL);
 
@@ -45,29 +43,25 @@ void receive() {
 			payload[bytes] = 0;
 
 			if (strcmp(payload, "UP") == 0) {
-				digitalWrite_B(PB0, HIGH);
-				digitalWrite_B(PB1, HIGH);
+				digitalWrite_B(PB4, HIGH);
 				sleep = false;
 			}  else if (strcmp(payload, "DOWN") == 0) {
-				digitalWrite_B(PB0, LOW);
-				digitalWrite_B(PB1, LOW);
+				digitalWrite_B(PB4, LOW);
 				sleep = true;
 			}
 		}
 
 		nrf24_writeReg(W_REGISTER | NRF_CONFIG,
 			NRF24_CFG_PWR_DOWN | NRF24_CFG_RX_MODE | NRF24_CFG_CRC_2B | NRF24_CFG_CRC_EN | NRF24_CFG_IRQ_MASK_ALL);
-		nrf24_disableCE();
 
 		if (sleep) {
-			snore(SLEEP_PERIOD_MILLIS);
+			sleep_mode();
 		}
 	}
 }
 
 void setup() {
-	DDRB |= _BV(PB0);
-	DDRB |= _BV(PB1);
+	DDRB |= _BV(PB4);
 
 	nrf24_init(); // initialize radio (UNDEFINED ==> POWER ON RESET) 
 	
@@ -87,6 +81,8 @@ void setup() {
 
 	nrf24_cmd(FLUSH_TX); // clean TX FIFOs thoroughly
 	nrf24_cmd(FLUSH_RX); // clean RX FIFOs thoroughly
+
+	setSleep(SLEEP_4SEC);
 }
 
 void loop(){
