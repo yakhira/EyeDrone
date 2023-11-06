@@ -58,5 +58,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#define NRF24L01_CE		    PB4 // Mandatory
 #define NRF24L01_CSN		PB3 // Mandatory
 #define NRF24L01_SCK		PB2 // Mandatory
-#define NRF24L01_MISO		PB1 // Mandatory
-#define NRF24L01_MOSI		PB0 // Mandatory
+#define NRF24L01_MOSI		PB1 // Mandatory
+#define NRF24L01_MISO		PB0 // Mandatory
