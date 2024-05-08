@@ -12,7 +12,7 @@
 #define LED           4
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 16;
+const int SKETCH_VERSION = 26;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 ESPCar espcar(
@@ -41,7 +41,7 @@ void checkSleepState(unsigned int interval){
 	if ((last_time + interval) <= (millis()/1000)) {
 		JSONVar sleepState;
 		if (!espwifi.getHTTPJsonData(
-			espwifi.dataUrl + "/esp/sleep?mac=" + WiFi.macAddress(),
+			espwifi.dataUrl + "/esp/eyedrone?mac=" + WiFi.macAddress(),
 			sleepState
 		)) {
 			http_errors_count +=1;
@@ -50,8 +50,6 @@ void checkSleepState(unsigned int interval){
 		}
 
 		if ((bool)sleepState["state"] || http_errors_count > 10){
-			adc_power_off();
-
 			digitalWrite(LEFT_BACK, LOW);
 			digitalWrite(LEFT_FORWARD, LOW);
 			digitalWrite(RIGHT_BACK, LOW);

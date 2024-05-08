@@ -57,7 +57,7 @@ void ESPWiFi::wifiConnect(){
             dns.fromString(wifiConfig["dns"]);
             gateway.fromString(wifiConfig["gateway"]);
             subnet.fromString(wifiConfig["subnet"]);
-            WiFi.config(staticIP, dns, gateway, subnet);
+            WiFi.config(staticIP, gateway, subnet, dns);
         }
 
         if (!wifiConfig.hasOwnProperty("hostname")) {
