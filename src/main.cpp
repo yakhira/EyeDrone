@@ -11,8 +11,10 @@
 #define SPEED         2
 #define LED           4
 
+#define DEFAULT_SLEEP_INTERVAL 180
+
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 26;
+const int SKETCH_VERSION = 27;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 ESPCar espcar(
@@ -67,6 +69,10 @@ void checkSleepState(unsigned int interval){
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_ON);
 			esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+
+			if (http_errors_count > 10) {
+				sleepState["interval"] = DEFAULT_SLEEP_INTERVAL;
+			} 
 
 			esp_sleep_enable_timer_wakeup((int)sleepState["interval"]*1000000ULL);	
 			esp_deep_sleep_start();
