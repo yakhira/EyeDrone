@@ -14,7 +14,7 @@
 #define DEFAULT_SLEEP_INTERVAL 180
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 27;
+const int SKETCH_VERSION = 30;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 ESPCar espcar(
@@ -52,6 +52,8 @@ void checkSleepState(unsigned int interval){
 		}
 
 		if ((bool)sleepState["state"] || http_errors_count > 10){
+			adc_power_off();
+
 			digitalWrite(LEFT_BACK, LOW);
 			digitalWrite(LEFT_FORWARD, LOW);
 			digitalWrite(RIGHT_BACK, LOW);
