@@ -1,9 +1,7 @@
 #include <Arduino.h>
 #include "utils/uart.h"
 
-#define SWITCH_PIN 		PB4
-#define TX_PIN			PB2 
-#define RX_PIN			PB0
+#define SWITCH_PIN PB4
 
 void setup(void)
 {
