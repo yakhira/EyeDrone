@@ -12,7 +12,7 @@
 #define LED           4
 
 // -------- DEFAULT SKETCH PARAMETERS --------
-const int SKETCH_VERSION = 25;
+const int SKETCH_VERSION = 26;
 
 ESPWiFi espwifi("ESP32-D0WDQ5");
 ESPCar espcar(
