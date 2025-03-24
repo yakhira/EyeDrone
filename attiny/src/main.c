@@ -7,13 +7,20 @@
 #include "nrf24/nRF24L01.h"
 #include "utils/utils.h"
 
-
-#define CHANNEL 76 // 0-125
+#define CHANNEL 	76 // 0-125
 #define FIVE_BYTES	5
 
-volatile bool sleep = true;
+#define DELAY	3	// (== 250us * (n+1))
+#define RETRY	10	// 12
 
-const uint8_t PIPE0_ADDRESS_PGM[] PROGMEM = "1Node"; // pipe 0 address in progmem - don't forget to define macro NR24_READ_PROGMEM in projdefs.h to support it
+#define MIN_V 	700
+
+volatile bool sleep = true;
+volatile unsigned int voltage = 0;
+volatile char buffer[10];
+
+const uint8_t PIPE0_ADDRESS_PGM[] PROGMEM = "0Node"; 
+const uint8_t PIPE1_ADDRESS_PGM[] PROGMEM = "1Node";
 
 void receive() {
 	uint8_t payload[NRF24_MAX_SIZE];
@@ -41,10 +48,12 @@ void receive() {
 		payload[bytes] = 0;
 
 		if (strcmp(payload, "UP") == 0) {
-			digitalWrite_B(PB4, HIGH);
-			sleep = false;
+			if (voltage > MIN_V) {
+				digitalWrite(PB4, HIGH);
+				sleep = false;
+			}
 		}  else if (strcmp(payload, "DOWN") == 0) {
-			digitalWrite_B(PB4, LOW);
+			digitalWrite(PB4, LOW);
 			sleep = true;
 		}
 	}
@@ -53,8 +62,22 @@ void receive() {
 		NRF24_CFG_PWR_DOWN | NRF24_CFG_RX_MODE | NRF24_CFG_CRC_2B | NRF24_CFG_CRC_EN | NRF24_CFG_IRQ_MASK_ALL);
 }
 
+void send(uint8_t payload[]) {
+	nrf24_writeReg(W_REGISTER | SETUP_RETR, (DELAY & 0xf) << ARD_SHIFT | (RETRY & 0xf) << ARC_SHIFT); // set waiting and retransmit 
+
+	// TX mode, enable CRC with 2 bytes, mask all IRQs, power on nRF radio (POWER DOWN ==> STANDBY-1)
+	nrf24_writeReg(W_REGISTER | NRF_CONFIG,
+		NRF24_CFG_PWR_UP | NRF24_CFG_TX_MODE | NRF24_CFG_CRC_2B | NRF24_CFG_CRC_EN | NRF24_CFG_IRQ_MASK_ALL);
+			
+	_delay_ms(DELAY_POWER_UP_MILLIS); // there should be 5ms delay to bring nRF from the POWER DOWN to the POWER UP state (the worst case)
+
+	nrf24_cmd(FLUSH_TX); // clean TX FIFOs thoroughly - in case there is a frame with exceeded retransmission (ARC)
+	nrf24_writeReg(W_REGISTER | NRF_STATUS, NRF24_STATUS_CLEAR_ALL); // clear all status indications		
+	nrf24_writeRegs(W_TX_PAYLOAD, payload, (int)strlen(payload)); // write message to the TX FIFO			
+}
+
 void setup() {
-	DDRB |= _BV(PB4);
+	pinMode(PB4, OUTPUT);
 
 	nrf24_init(); // initialize radio (UNDEFINED ==> POWER ON RESET) 
 	
@@ -70,7 +93,7 @@ void setup() {
 	// Target pipe 0 address from PROGMEM. Because we read value from PROGMEM, we have to add flag NRF24_PROGMEM_MASK to the size.
 	nrf24_writeRegs(W_REGISTER | TX_ADDR, PIPE0_ADDRESS_PGM, FIVE_BYTES | NRF24_PROGMEM_MASK); 	
 	// RX address on pipe 0 from PROGMEM. Because we read value from PROGMEM, we have to add flag NRF24_PROGMEM_MASK to the size.
-	nrf24_writeRegs(W_REGISTER | RX_ADDR_P0, PIPE0_ADDRESS_PGM, FIVE_BYTES | NRF24_PROGMEM_MASK); 
+	nrf24_writeRegs(W_REGISTER | RX_ADDR_P0, PIPE1_ADDRESS_PGM, FIVE_BYTES | NRF24_PROGMEM_MASK); 
 
 	nrf24_cmd(FLUSH_TX); // clean TX FIFOs thoroughly
 	nrf24_cmd(FLUSH_RX); // clean RX FIFOs thoroughly
@@ -80,6 +103,10 @@ void setup() {
 
 void loop(){
 	receive();
+
+	voltage = analogRead(A0);
+	itoa(voltage, buffer, 10);
+	send(buffer); 
 
 	if (sleep) {
 		sleep_mode();
