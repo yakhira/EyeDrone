@@ -17,7 +17,6 @@
 
 volatile bool sleep = true;
 volatile unsigned int voltage = 0;
-volatile char buffer[10];
 
 const uint8_t PIPE0_ADDRESS_PGM[] PROGMEM = "0Node"; 
 const uint8_t PIPE1_ADDRESS_PGM[] PROGMEM = "1Node";
@@ -36,7 +35,7 @@ void receive() {
 
 	uint8_t status = nrf24_readReg(R_REGISTER | NRF_STATUS);
 
-	if( status & NRF24_STATUS_RX_DR ) {
+	if ( status & NRF24_STATUS_RX_DR ) {
 		// read everything what has been received from RX FIFO
 		// (make sure you read everything from RX FIFO otherwise RX FIFO will overflow eventually)
 		// (if you are lazy, you can always do FLUSH_RX after each read but you loose unprocessed frames, RX has 3 FIFOs
@@ -45,14 +44,16 @@ void receive() {
 		nrf24_readRegs(R_RX_PAYLOAD, payload, bytes);	// read payload into a buffer
 		nrf24_writeReg(W_REGISTER | NRF_STATUS, NRF24_STATUS_CLEAR_ALL); // clear received flag
 
-		payload[bytes] = 0;
+		if (bytes < sizeof(payload)) {
+			payload[bytes] = 0;
+		} else {
+			payload[sizeof(payload) - 1] = 0; // Ensure safe termination
+		}
 
-		if (strcmp(payload, "UP") == 0) {
-			if (voltage > MIN_V) {
-				digitalWrite(PB4, HIGH);
-				sleep = false;
-			}
-		}  else if (strcmp(payload, "DOWN") == 0) {
+		if (payload[0] == 'U' && payload[1] == 'P') {
+			digitalWrite(PB4, HIGH);
+			sleep = false;
+		}  else if (payload[0] == 'D' && payload[1] == 'O' && payload[2] == 'W' && payload[3] == 'N') {
 			digitalWrite(PB4, LOW);
 			sleep = true;
 		}
@@ -76,6 +77,13 @@ void send(uint8_t payload[]) {
 	nrf24_writeRegs(W_TX_PAYLOAD, payload, (int)strlen(payload)); // write message to the TX FIFO			
 }
 
+void sendVoltage() {
+	char buffer[10];
+	voltage = analogRead(A0);
+	itoa(voltage, buffer, 10);
+	send(buffer);
+}
+
 void setup() {
 	pinMode(PB4, OUTPUT);
 
@@ -84,29 +92,25 @@ void setup() {
 	_delay_ms(20); // it takes 10.3ms to switch from POWER ON RESET ==> POWER DOWN
 	
 	nrf24_writeReg(W_REGISTER | RF_CH,    CHANNEL);
-	nrf24_writeReg(W_REGISTER | RF_SETUP, NRF24_PWR_MAX | NRF24_SPEED_250kbps); // 0dbm TX power, 250kbps
+	nrf24_writeReg(W_REGISTER | RF_SETUP, NRF24_PWR_MAX | NRF24_SPEED_2Mbps); // 0dbm TX power, 250kbps
 	
-	nrf24_writeReg(W_REGISTER | EN_RXADDR, NRF24_PIPE_0);	// enable RX in pipe 0 for ACK packet
+	nrf24_writeReg(W_REGISTER | EN_RXADDR, NRF24_PIPE_0);	// enable RX in pipe 1 for ACK packet
 	nrf24_writeReg(W_REGISTER | DYNPD,     NRF24_PIPE_0);   // enable dynamic payload in pipe 0	x`
 	nrf24_writeReg(W_REGISTER | FEATURE,   NRF24_FEATURE_EN_DPL); // enable dynamic payload length
 	
-	// Target pipe 0 address from PROGMEM. Because we read value from PROGMEM, we have to add flag NRF24_PROGMEM_MASK to the size.
 	nrf24_writeRegs(W_REGISTER | TX_ADDR, PIPE0_ADDRESS_PGM, FIVE_BYTES | NRF24_PROGMEM_MASK); 	
-	// RX address on pipe 0 from PROGMEM. Because we read value from PROGMEM, we have to add flag NRF24_PROGMEM_MASK to the size.
 	nrf24_writeRegs(W_REGISTER | RX_ADDR_P0, PIPE1_ADDRESS_PGM, FIVE_BYTES | NRF24_PROGMEM_MASK); 
 
 	nrf24_cmd(FLUSH_TX); // clean TX FIFOs thoroughly
 	nrf24_cmd(FLUSH_RX); // clean RX FIFOs thoroughly
 
 	setSleep(SLEEP_4SEC);
+
+	sendVoltage();
 }
 
 void loop(){
 	receive();
-
-	voltage = analogRead(A0);
-	itoa(voltage, buffer, 10);
-	send(buffer); 
 
 	if (sleep) {
 		sleep_mode();

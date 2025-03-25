@@ -22,8 +22,7 @@ extern "C" {
 #define SLEEP_8SEC     (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0)
 
 void setSleep(int b);
-void digitalWrite_A(int pin, int level);
-void digitalWrite_B(int pin, int level);
+void changeLevel(int pin, int level);
 
 #ifdef __cplusplus
 }
