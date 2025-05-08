@@ -92,9 +92,9 @@ void setup() {
 	_delay_ms(20); // it takes 10.3ms to switch from POWER ON RESET ==> POWER DOWN
 	
 	nrf24_writeReg(W_REGISTER | RF_CH,    CHANNEL);
-	nrf24_writeReg(W_REGISTER | RF_SETUP, NRF24_PWR_MAX | NRF24_SPEED_2Mbps); // 0dbm TX power, 250kbps
+	nrf24_writeReg(W_REGISTER | RF_SETUP, NRF24_PWR_MAX | NRF24_SPEED_1Mbps); // 0dbm TX power, 250kbps
 	
-	nrf24_writeReg(W_REGISTER | EN_RXADDR, NRF24_PIPE_0);	// enable RX in pipe 1 for ACK packet
+	//nrf24_writeReg(W_REGISTER | EN_RXADDR, NRF24_PIPE_0);	// enable RX in pipe 1 for ACK packet
 	nrf24_writeReg(W_REGISTER | DYNPD,     NRF24_PIPE_0);   // enable dynamic payload in pipe 0	x`
 	nrf24_writeReg(W_REGISTER | FEATURE,   NRF24_FEATURE_EN_DPL); // enable dynamic payload length
 	
